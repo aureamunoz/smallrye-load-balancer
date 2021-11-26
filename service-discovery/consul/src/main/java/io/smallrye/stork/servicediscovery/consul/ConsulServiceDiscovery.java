@@ -9,6 +9,7 @@ import static io.smallrye.stork.servicediscovery.consul.ConsulMetadataKey.META_C
 import static io.smallrye.stork.servicediscovery.consul.ConsulMetadataKey.META_CONSUL_SERVICE_NODE_ADDRESS;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -90,10 +91,11 @@ public class ConsulServiceDiscovery extends CachingServiceDiscovery {
         for (ServiceEntry serviceEntry : list) {
             Service service = serviceEntry.getService();
             Map<String, String> labels = service.getTags().stream().collect(Collectors.toMap(Function.identity(), s -> s));
-            Metadata<ConsulMetadataKey> consulMetadata = Metadata.of(ConsulMetadataKey.class);
-            consulMetadata.put(META_CONSUL_SERVICE_ID, service.getId());
-            consulMetadata.put(META_CONSUL_SERVICE_NODE, service.getNode());
-            consulMetadata.put(META_CONSUL_SERVICE_NODE_ADDRESS, service.getNodeAddress());
+            Map<ConsulMetadataKey, Object> map = new HashMap<>();
+            map.put(META_CONSUL_SERVICE_ID, service.getId());
+            map.put(META_CONSUL_SERVICE_NODE, service.getNode());
+            map.put(META_CONSUL_SERVICE_NODE_ADDRESS, service.getNodeAddress());
+            Metadata<ConsulMetadataKey> consulMetadata = Metadata.of(map);
             String address = service.getAddress();
             int port = serviceEntry.getService().getPort();
             if (address == null) {

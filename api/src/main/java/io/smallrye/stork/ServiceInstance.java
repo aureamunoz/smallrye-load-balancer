@@ -32,7 +32,7 @@ public interface ServiceInstance {
      * @return the metadata of the instance, empty if none.
      */
     default Metadata<? extends MetadataKey> getMetadata() {
-        return Metadata.of(MetadataKey.class);
+        return Metadata.of(Collections.emptyMap());
     }
 
     /**

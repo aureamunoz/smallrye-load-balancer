@@ -19,7 +19,7 @@ public class DefaultServiceInstance implements ServiceInstance {
 
     public DefaultServiceInstance(long id, String host, int port, boolean secure) {
         this(id, host, port, secure, Collections.emptyMap(),
-                Metadata.of(MetadataKey.class));
+                Metadata.of(Collections.emptyMap()));
     }
 
     public DefaultServiceInstance(long id, String host, int port, boolean secure, Map<String, String> labels,
@@ -52,7 +52,7 @@ public class DefaultServiceInstance implements ServiceInstance {
         return secure;
     }
 
-    //    @Override
+        @Override
     public Metadata<? extends MetadataKey> getMetadata() {
         return metadata;
     }

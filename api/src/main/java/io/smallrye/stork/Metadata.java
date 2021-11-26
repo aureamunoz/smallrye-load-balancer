@@ -7,31 +7,20 @@ import java.util.Optional;
 public class Metadata<T extends Enum<T>> {
 
     private final EnumMap<T, Object> metatada;
-    private final Class<T> enumType;
 
-    private Metadata(Class<T> key) {
-        this.metatada = new EnumMap<T, Object>(key);
-        this.enumType = key;
+    private Metadata(Map<T, Object> metatada) {
+        this.metatada = new EnumMap<T, Object>(metatada);
 
     }
 
-    public static Metadata of(Class<?> key) {
-        return new Metadata(key);
+    public static Metadata of(Map<?, Object> metatada) {
+        return new Metadata(metatada);
     }
 
     public Map<T, Object> getMetadata() {
         return metatada;
     }
 
-    public Optional<Object> get(T key) {
-        if (key == null) {
-            throw new IllegalArgumentException("key must not be `null`");
-        }
-        return Optional.ofNullable(metatada.get(key));
-    }
 
-    public void put(T key, Object o) {
-        metatada.put(key, o);
-    }
 
 }
