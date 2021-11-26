@@ -25,7 +25,11 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
-import io.smallrye.stork.*;
+import io.smallrye.stork.Metadata;
+import io.smallrye.stork.Service;
+import io.smallrye.stork.ServiceInstance;
+import io.smallrye.stork.Stork;
+import io.smallrye.stork.StorkTestUtils;
 import io.smallrye.stork.test.TestConfigProvider;
 import io.vertx.core.Vertx;
 import io.vertx.ext.consul.ConsulClient;

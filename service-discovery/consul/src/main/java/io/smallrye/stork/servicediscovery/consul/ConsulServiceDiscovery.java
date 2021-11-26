@@ -90,7 +90,7 @@ public class ConsulServiceDiscovery extends CachingServiceDiscovery {
         for (ServiceEntry serviceEntry : list) {
             Service service = serviceEntry.getService();
             Map<String, String> labels = service.getTags().stream().collect(Collectors.toMap(Function.identity(), s -> s));
-            Metadata<ConsulMetadataKey> consulMetadata = new Metadata<>(ConsulMetadataKey.class);
+            Metadata<ConsulMetadataKey> consulMetadata = Metadata.of(ConsulMetadataKey.class);
             consulMetadata.put(META_CONSUL_SERVICE_ID, service.getId());
             consulMetadata.put(META_CONSUL_SERVICE_NODE, service.getNode());
             consulMetadata.put(META_CONSUL_SERVICE_NODE_ADDRESS, service.getNodeAddress());

@@ -3,20 +3,20 @@ package io.smallrye.stork;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 public class Metadata<T extends Enum<T>> {
 
-    private EnumMap<T, Object> metatada;
-    Class<T> enumType;
+    private final EnumMap<T, Object> metatada;
+    private final Class<T> enumType;
 
-    public Metadata(Class<T> key) {
+    private Metadata(Class<T> key) {
         this.metatada = new EnumMap<T, Object>(key);
         this.enumType = key;
+
     }
 
-    public Metadata() {
-
+    public static Metadata of(Class<?> key) {
+        return new Metadata(key);
     }
 
     public Map<T, Object> getMetadata() {
@@ -32,10 +32,6 @@ public class Metadata<T extends Enum<T>> {
 
     public void put(T key, Object o) {
         metatada.put(key, o);
-    }
-
-    public Set<T> keySet() {
-        return Set.of(enumType.getEnumConstants());
     }
 
 }
