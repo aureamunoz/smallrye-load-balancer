@@ -21,6 +21,7 @@ import io.smallrye.stork.api.ServiceInstance;
 import io.smallrye.stork.api.config.LoadBalancerConfig;
 import io.smallrye.stork.api.config.ServiceConfig;
 import io.smallrye.stork.api.config.ServiceDiscoveryConfig;
+import io.smallrye.stork.api.config.ServiceRegistrarConfig;
 import io.smallrye.stork.impl.RoundRobinLoadBalancer;
 import io.smallrye.stork.impl.RoundRobinLoadBalancerProvider;
 import io.smallrye.stork.spi.config.ConfigProvider;
@@ -368,6 +369,11 @@ public class StorkTest {
         @Override
         public ServiceDiscoveryConfig serviceDiscovery() {
             return sd;
+        }
+
+        @Override
+        public ServiceRegistrarConfig serviceRegistrar() {
+            return null;
         }
 
         @Override

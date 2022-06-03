@@ -1,5 +1,6 @@
 package io.smallrye.stork.servicediscovery.kubernetes;
 
+import static io.smallrye.stork.servicediscovery.kubernetes.KubernetesMetadataKey.META_K8S_NAMESPACE;
 import static io.smallrye.stork.servicediscovery.kubernetes.KubernetesMetadataKey.META_K8S_SERVICE_ID;
 
 import java.util.ArrayList;
@@ -158,8 +159,10 @@ public class KubernetesServiceDiscovery extends CachingServiceDiscovery {
                                 : Collections.emptyMap());
                         Optional<Pod> maybePod = pods.stream().filter(pod -> pod.getMetadata().getName().equals(podName))
                                 .findFirst();
+                        String podNamespace = namespace;
                         if (maybePod.isPresent()) {
                             Map<String, String> podLabels = maybePod.get().getMetadata().getLabels();
+                            podNamespace = maybePod.get().getMetadata().getNamespace();
                             for (Map.Entry<String, String> label : podLabels.entrySet()) {
                                 labels.putIfAbsent(label.getKey(), label.getValue());
                             }
@@ -167,7 +170,8 @@ public class KubernetesServiceDiscovery extends CachingServiceDiscovery {
                         //TODO add some useful metadata?
                         Metadata<KubernetesMetadataKey> k8sMetadata = Metadata.of(KubernetesMetadataKey.class);
                         serviceInstances.add(new DefaultServiceInstance(ServiceInstanceIds.next(), hostname, port, secure,
-                                labels, k8sMetadata.with(META_K8S_SERVICE_ID, hostname)));
+                                labels,
+                                k8sMetadata.with(META_K8S_SERVICE_ID, hostname).with(META_K8S_NAMESPACE, podNamespace)));
                     }
                 }
             }

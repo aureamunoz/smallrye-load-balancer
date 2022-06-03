@@ -17,10 +17,13 @@ import org.slf4j.LoggerFactory;
 import io.smallrye.mutiny.helpers.ParameterValidation;
 import io.smallrye.stork.api.LoadBalancer;
 import io.smallrye.stork.api.NoSuchServiceDefinitionException;
+import io.smallrye.stork.api.NoSuchServiceRegistrarException;
 import io.smallrye.stork.api.Service;
 import io.smallrye.stork.api.ServiceDefinition;
+import io.smallrye.stork.api.ServiceRegistrar;
 import io.smallrye.stork.api.StorkServiceRegistry;
 import io.smallrye.stork.api.config.ServiceConfig;
+import io.smallrye.stork.api.config.ServiceRegistrarConfig;
 import io.smallrye.stork.impl.RoundRobinLoadBalancer;
 import io.smallrye.stork.impl.RoundRobinLoadBalancerProvider;
 import io.smallrye.stork.integration.DefaultStorkInfrastructure;
@@ -30,6 +33,7 @@ import io.smallrye.stork.spi.config.ConfigProvider;
 import io.smallrye.stork.spi.config.SimpleServiceConfig;
 import io.smallrye.stork.spi.internal.LoadBalancerLoader;
 import io.smallrye.stork.spi.internal.ServiceDiscoveryLoader;
+import io.smallrye.stork.spi.internal.ServiceRegistrarLoader;
 
 /**
  * The entrypoint for SmallRye Stork.
@@ -45,9 +49,15 @@ public final class Stork implements StorkServiceRegistry {
      */
     public static final String STORK = "stork";
 
+    /**
+     * configuration prefix for stork service registrars
+     */
+    public static final String STORK_REGISTRAR = "stork-registrar";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(Stork.class);
 
     private final Map<String, Service> services = new ConcurrentHashMap<>();
+    private final Map<String, ServiceRegistrar> serviceRegistrars = new ConcurrentHashMap<>();
     private final StorkInfrastructure infrastructure;
 
     @Override
@@ -98,10 +108,12 @@ public final class Stork implements StorkServiceRegistry {
      * @param storkInfrastructure the infrastructure, must not be {@code null}
      */
     @Deprecated
+    @SuppressWarnings("rawtypes")
     public Stork(StorkInfrastructure storkInfrastructure) {
         this.infrastructure = storkInfrastructure;
         Map<String, LoadBalancerLoader> loadBalancerProviders = getAll(LoadBalancerLoader.class);
         Map<String, ServiceDiscoveryLoader> serviceDiscoveryProviders = getAll(ServiceDiscoveryLoader.class);
+        Map<String, ServiceRegistrarLoader> registrarLoaders = getAll(ServiceRegistrarLoader.class);
 
         ServiceLoader<ConfigProvider> configs = ServiceLoader.load(ConfigProvider.class);
         Optional<ConfigProvider> highestPrioConfigProvider = configs.stream()
@@ -118,8 +130,21 @@ public final class Stork implements StorkServiceRegistry {
             for (Service service : services.values()) {
                 service.getServiceDiscovery().initialize(this);
             }
+
+            for (ServiceRegistrarConfig registrarConfig : configProvider.getRegistrarConfigs()) {
+                serviceRegistrars.put(registrarConfig.name(), createServiceRegistrar(registrarConfig, registrarLoaders));
+            }
         }
 
+    }
+
+    private ServiceRegistrar createServiceRegistrar(ServiceRegistrarConfig registrarConfig,
+            Map<String, ServiceRegistrarLoader> registrarLoaders) {
+        ServiceRegistrarLoader registrarLoader = registrarLoaders.get(registrarConfig.type());
+        if (registrarLoader == null) {
+            throw new IllegalArgumentException("No service registrar found for type " + registrarConfig.type());
+        }
+        return registrarLoader.createServiceRegistrar(registrarConfig, infrastructure);
     }
 
     private Service createService(ServiceConfig serviceConfig) {
@@ -214,5 +239,16 @@ public final class Stork implements StorkServiceRegistry {
      */
     public static void initialize() {
         initialize(new DefaultStorkInfrastructure());
+    }
+
+    //mstodo: configuration should rather be separate, metadata key might not be the best thing to re use
+    @SuppressWarnings("unchecked")
+    public ServiceRegistrar getServiceRegistrar(
+            String registrarName) {
+        ServiceRegistrar registrar = serviceRegistrars.get(registrarName);
+        if (registrar == null) {
+            throw new NoSuchServiceRegistrarException(registrarName);
+        }
+        return registrar;
     }
 }

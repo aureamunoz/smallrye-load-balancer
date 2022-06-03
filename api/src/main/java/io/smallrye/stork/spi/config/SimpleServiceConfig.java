@@ -6,6 +6,7 @@ import java.util.Map;
 import io.smallrye.stork.api.config.LoadBalancerConfig;
 import io.smallrye.stork.api.config.ServiceConfig;
 import io.smallrye.stork.api.config.ServiceDiscoveryConfig;
+import io.smallrye.stork.api.config.ServiceRegistrarConfig;
 
 /**
  * Implementation of {@link ServiceConfig} storing the service name, service discovery config and load balancer config.
@@ -39,6 +40,11 @@ public class SimpleServiceConfig implements ServiceConfig {
     @Override
     public ServiceDiscoveryConfig serviceDiscovery() {
         return serviceDiscoveryConfig;
+    }
+
+    @Override
+    public ServiceRegistrarConfig serviceRegistrar() {
+        return null;
     }
 
     /**

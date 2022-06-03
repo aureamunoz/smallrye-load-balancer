@@ -26,6 +26,13 @@ public interface ServiceConfig {
     ServiceDiscoveryConfig serviceDiscovery();
 
     /**
+     * ServiceRegistrar configuration for the service
+     *
+     * @return (required) service discovery configuration
+     */
+    ServiceRegistrarConfig serviceRegistrar();
+
+    /**
      * Whether the communication should use a secure connection (e.g. HTTPS)
      * 
      * @return true if SSL, TLS, etc. should be used for the communication

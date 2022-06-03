@@ -9,6 +9,7 @@ import java.util.Objects;
 import io.smallrye.stork.api.config.LoadBalancerConfig;
 import io.smallrye.stork.api.config.ServiceConfig;
 import io.smallrye.stork.api.config.ServiceDiscoveryConfig;
+import io.smallrye.stork.api.config.ServiceRegistrarConfig;
 import io.smallrye.stork.spi.config.ConfigProvider;
 
 /**
@@ -16,6 +17,7 @@ import io.smallrye.stork.spi.config.ConfigProvider;
  */
 public class TestConfigProvider implements ConfigProvider {
     private static final List<ServiceConfig> configs = new ArrayList<>();
+    private static final List<ServiceRegistrarConfig> registrarConfigs = new ArrayList<>();
 
     private static int priority = Integer.MAX_VALUE;
 
@@ -73,16 +75,43 @@ public class TestConfigProvider implements ConfigProvider {
                     }
                 };
             }
+
+            @Override
+            public ServiceRegistrarConfig serviceRegistrar() {
+                return null;
+            }
+        });
+    }
+
+    public static void addServiceRegistrarConfig(String registrarName, String registrarType, Map<String, String> parameters) {
+        registrarConfigs.add(new ServiceRegistrarConfig() {
+            public String name() {
+                return registrarName;
+            }
+
+            public String type() {
+                return registrarType;
+            }
+
+            public Map<String, String> parameters() {
+                return parameters;
+            }
         });
     }
 
     public static void clear() {
         configs.clear();
+        registrarConfigs.clear();
     }
 
     @Override
     public List<ServiceConfig> getConfigs() {
         return configs;
+    }
+
+    @Override
+    public List<ServiceRegistrarConfig> getRegistrarConfigs() {
+        return registrarConfigs;
     }
 
     @Override
